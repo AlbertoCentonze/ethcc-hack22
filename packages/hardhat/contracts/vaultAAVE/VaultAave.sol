@@ -5,14 +5,17 @@ import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IPalPool.sol";
 import "./IStakedAave.sol";
+import "./IPaladinController.sol";
 
 //TODO safeERC20
 contract VaultAave is Ownable {
     //TODO hardcoded addresses
     address private constant Aave = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
+    address private constant StkAave = 0x4da27a545c0c5B758a6BA100e3a049001de870f5; // Todo: Same address as staking SC ??
+	address private constant PalStkAave = 0x24e79e946dea5482212c38aab2d0782f04cdb0e0;
     address private constant AaveStakingContract = 0x4da27a545c0c5B758a6BA100e3a049001de870f5;
     address private constant PaladinPoolContract = 0xCDc3DD86C99b58749de0F697dfc1ABE4bE22216d;
-		address private constant PaladinController = 0x0;
+	address private constant PaladinController = ​0x241326339ced11EcC7CA07E4AA350234C57F53E5​;
 
     error GenericError();
 
@@ -29,17 +32,20 @@ contract VaultAave is Ownable {
 
     function _stakeAave(uint amount) private {
         IERC20(Aave).approve(AaveStakingContract, amount);
-				IStakedAave(AaveStakingContract).stake(address(this), amount);
+		IStakedAave(AaveStakingContract).stake(address(this), amount);
     }
 
     function _depositStkAave(uint amount) private returns (uint palStkAaveAmount) {
-				IERC20(AaveStakingContract).approve(PaladinPoolContract, amount);
-				palStkAaveAmount = IPalPool(PaladinPoolContract).deposit(amount);
-		}
+		IERC20(StkAave).approve(PaladinPoolContract, amount);
+		palStkAaveAmount = IPalPool(PaladinPoolContract).deposit(amount);
+	}
 
     function _stakePalStkAave(uint amount) private {
-			IERC20()
-		}
+		IERC20(PalStkAave).approve(PaladinController, amount);
+        if (!IPaladinController(PaladinController).deposit(PalStkAave, amount)) {
+            revert GenericError();
+        }
+	}
 
     function rescue(uint amount) public onlyOwner {
         _unstakeAave();
