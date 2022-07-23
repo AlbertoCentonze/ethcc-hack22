@@ -12,10 +12,10 @@ contract VaultAave is Ownable {
     //TODO hardcoded addresses
     address private constant Aave = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address private constant StkAave = 0x4da27a545c0c5B758a6BA100e3a049001de870f5; // Todo: Same address as staking SC ??
-	address private constant PalStkAave = 0x24e79e946dea5482212c38aab2d0782f04cdb0e0;
+	address private constant PalStkAave = 0x24E79e946dEa5482212c38aaB2D0782F04cdB0E0;
     address private constant AaveStakingContract = 0x4da27a545c0c5B758a6BA100e3a049001de870f5;
     address private constant PaladinPoolContract = 0xCDc3DD86C99b58749de0F697dfc1ABE4bE22216d;
-	address private constant PaladinController = ​0x241326339ced11EcC7CA07E4AA350234C57F53E5​;
+	address private constant PaladinController = 0x241326339ced11EcC7CA07E4AA350234C57F53E5;
 
     error GenericError();
 
