@@ -12,6 +12,7 @@ contract Rewarder is Ownable{
     mapping(address => mapping(uint256 => uint256)) indexList;//token address to (block to index)
     uint256[] indexBlocks;
     uint256 minimumBlock;
+    uint256 lastBalance;
 
     constructor() {
         minimumBlock = block.number;
@@ -22,10 +23,12 @@ contract Rewarder is Ownable{
         HolyPaladinToken pal = HolyPaladinToken(PALtoken);
         for(uint i = 0; i< tokenList.length; i++){
             IERC20 token = IERC20(tokenList[i]);
-            uint256 balance = token.balanceOf(address(this));
-            uint256 index = balance / pal.currentTotalLocked();
+            uint256 balanceDelta = token.balanceOf(address(this)) - lastBalance;
+            uint256 index = balanceDelta / pal.currentTotalLocked();
             indexList[tokenList[i]][block.number] = index;
+            lastBalance = token.balanceOf(address(this));
         }
+        
     }
 
     function claim(address[] memory tokenList) external{
@@ -49,27 +52,4 @@ contract Rewarder is Ownable{
             IERC20(tokenList[i]).transfer(msg.sender, balanceClaimable);
         }      
     }
-
-    /*address[] public tokenList;
-    mapping(address => address[]) tokenToVault;
-
-    function deleteToken(address _address) external onlyOwner{
-        for(uint i = 0; i<tokenList.length; i++){
-            if (tokenList[i] == _address){
-                tokenList[i] = tokenList[tokenList.length - 1];
-                tokenList.pop();
-            }
-        }
-    }
-
-    function addToken(address tokenAddress, address vaultAddress) external onlyOwner{
-        tokenList.push(tokenAddress);
-        tokenToVault[tokenAddress].push(vaultAddress);
-    }
-
-    //TODO: restrict
-    function claimSingle(address tokenAddress) external {
-        
-    }*/
-
 }
