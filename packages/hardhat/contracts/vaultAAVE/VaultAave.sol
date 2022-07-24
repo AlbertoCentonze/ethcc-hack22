@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../paladin/IPalPool.sol";
-import "../paladin/IStakedAave.sol";
 import "../paladin/IPaladinController.sol";
+import "../Aave/IStakedAave.sol";
 
 //TODO safeERC20
 contract VaultAave is Ownable {
@@ -17,6 +17,10 @@ contract VaultAave is Ownable {
     address private constant PaladinPoolContract = 0xCDc3DD86C99b58749de0F697dfc1ABE4bE22216d;
 	address private constant PaladinController = 0x241326339ced11EcC7CA07E4AA350234C57F53E5;
 
+    uint private lastExchangeRate = 0;
+    uint private totalAmountStaked = 0;
+    uint private totalInterestGenerated = 0;
+
     error GenericError();
 
     constructor() {}
@@ -25,8 +29,14 @@ contract VaultAave is Ownable {
         if (IERC20(Aave).balanceOf(address(this)) < amount) {
             revert GenericError();
         }
+
+        _refreshInterestGenerated();
+
         _stakeAave(amount);
+        
         uint palStkAaveAmount = _depositStkAave(amount);
+        totalAmountStaked += palStkAaveAmount;
+
         _stakePalStkAave(palStkAaveAmount);
     }
 
@@ -48,23 +58,35 @@ contract VaultAave is Ownable {
 	}
 
     function rescue(uint amount) public onlyOwner {
-        _unstakeAave();
-        _withdrawStkAave();
-        _unstakePalStkAave();
+        _unstakeAave(amount);
+        _withdrawStkAave(amount);
+        _unstakePalStkAave(amount);
     }
 
-    function _unstakeAave() private {}
+    function _unstakeAave(uint amount) private {}
 
-    function _withdrawStkAave() private {}
+    function _withdrawStkAave(uint amount) private {}
 
-    function _unstakePalStkAave() private {}
+    function _unstakePalStkAave(uint amount) private {}
 
-    function harvest() public {
-        _harvestAutocompounder();
-        _harvestPalRewards();
+    function harvest(address to) public {
+        _harvestAutocompounder(to); // Receives the stkAave rewards
+        _harvestPalRewards(to); // Receives the Pal rewards
     }
 
-    function _harvestAutocompounder() private {}
+    function _harvestAutocompounder(address to) private {
+        _refreshInterestGenerated();
+        uint amountToWithdraw = totalInterestGenerated / IPalPool(PaladinPoolContract).exchangeRateCurrent();
+        uint256 underlyingReceived = IPalPool(PaladinPoolContract).withdraw(amountToWithdraw);
+        IERC20(StkAave).transfer(to, underlyingReceived);
+    }
 
-    function _harvestPalRewards() private {}
+    function _harvestPalRewards(address to) private {
+
+    }
+
+    function _refreshInterestGenerated() private {
+        uint deltaRate = IPalPool(PaladinPoolContract).exchangeRateCurrent() - lastExchangeRate;
+        totalInterestGenerated += totalAmountStaked * deltaRate;
+    }
 }
