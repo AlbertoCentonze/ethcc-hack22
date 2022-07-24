@@ -17,7 +17,6 @@ contract VaultCRV is IVaultCRV {
 
     function delegateCall(address _change, bytes[] memory _change_as_well)
         external
-        override
     {}
 
     //Lock the initial CRV
