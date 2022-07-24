@@ -31,19 +31,27 @@ contract VaultAave is Ownable {
         console.log(msg.sender);
     }
 
-    function stake(uint amount) public onlyOwner {
+    function stake(uint amount) public {
         if (IERC20(Aave).balanceOf(address(this)) < amount) {
             revert GenericError();
         }
 
         _refreshInterestGenerated();
 
+        console.log(IERC20(Aave).balanceOf(address(this)));
+
         _stakeAave(amount);
+
+        console.log(IERC20(StkAave).balanceOf(address(this)));
         
         uint palStkAaveAmount = _depositStkAave(amount);
         totalAmountStaked += palStkAaveAmount;
+        
+        console.log(IERC20(PalStkAave).balanceOf(address(this)));
 
         _stakePalStkAave(palStkAaveAmount);
+
+        console.log(IERC20(PalStkAave).balanceOf(address(this)));
     }
 
     function _stakeAave(uint amount) private {
@@ -76,8 +84,12 @@ contract VaultAave is Ownable {
     function _unstakePalStkAave(uint amount) private {}
 
     function harvest(address to) public {
+        console.log(IERC20(StkAave).balanceOf(to));
+
         _harvestAutocompounder(to); // Receives the stkAave rewards
         _harvestPalRewards(to); // Receives the Pal rewards
+        
+        console.log(IERC20(StkAave).balanceOf(to));
     }
 
     function _harvestAutocompounder(address to) private {
@@ -88,7 +100,8 @@ contract VaultAave is Ownable {
     }
 
     function _harvestPalRewards(address to) private {
-
+        IPaladinController(PaladinController).claim(address(this));
+        IERC20(StkAave).transfer(to, IERC20(StkAave).balanceOf(address(this)));
     }
 
     function _refreshInterestGenerated() private {
