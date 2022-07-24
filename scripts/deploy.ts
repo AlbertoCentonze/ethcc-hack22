@@ -15,7 +15,7 @@ async function main() {
 
 	const aave = await ethers.getContractAt(abi, "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9", binanceSigner)
   console.log(await aave.balanceOf("0xF977814e90dA44bFA03b6295A0616a897441aceC"))
-	await aave.transfer("0x32DbEf8B3C7DD3E32C874D8A62162206518E5906", 1500000000)
+	await vault.stake(1500000000)
   console.log(await aave.balanceOf("0xF977814e90dA44bFA03b6295A0616a897441aceC"))
 
 	// await (await (await VaultAave.connect(binanceSigner)).deploy()).debug();
