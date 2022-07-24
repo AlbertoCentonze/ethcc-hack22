@@ -7,6 +7,8 @@ import "../paladin/IPalPool.sol";
 import "../paladin/IPaladinController.sol";
 import "../Aave/IStakedAave.sol";
 
+import "hardhat/console.sol";
+
 //TODO safeERC20
 contract VaultAave is Ownable {
     //TODO hardcoded addresses
@@ -24,6 +26,10 @@ contract VaultAave is Ownable {
     error GenericError();
 
     constructor() {}
+
+    function debug() public {
+        console.log(msg.sender);
+    }
 
     function stake(uint amount) public onlyOwner {
         if (IERC20(Aave).balanceOf(address(this)) < amount) {

@@ -5,10 +5,15 @@ async function main() {
   const VaultAave = await ethers.getContractFactory("VaultAave")
   const vault = await VaultAave.deploy()
   await vault.deployed()
+
 	const binanceAddress = "0xF977814e90dA44bFA03b6295A0616a897441aceC"
 	await helpers.impersonateAccount(binanceAddress)
+  
 	const binanceSigner = await ethers.getSigner(binanceAddress)
-	await (await (await VaultAave.connect(binanceSigner)).deploy()).debug();
+
+  
+
+	// await (await (await VaultAave.connect(binanceSigner)).deploy()).debug();
 }
 
 // We recommend this pattern to be able to use async/await everywhere
