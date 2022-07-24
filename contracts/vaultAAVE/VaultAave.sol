@@ -6,11 +6,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../paladin/IPalPool.sol";
 import "../paladin/IPaladinController.sol";
 import "../Aave/IStakedAave.sol";
+import "../IVault.sol";
 
 import "hardhat/console.sol";
 
 //TODO safeERC20
-contract VaultAave is Ownable {
+contract VaultAave is Ownable, IVault {
     //TODO hardcoded addresses
     address private constant Aave = 0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9;
     address private constant StkAave = 0x4da27a545c0c5B758a6BA100e3a049001de870f5; // Todo: Same address as staking SC ??
